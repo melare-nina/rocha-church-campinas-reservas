@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import type { ChatState } from "@/lib/chatEngine";
+import type { RoomDTO } from "@/types";
 
 interface Mensagem {
   autor: "usuario" | "assistente";
@@ -19,10 +20,15 @@ function renderizarTexto(texto: string) {
   });
 }
 
+/** Artigo definido correto para preceder o nome da sala em uma frase (ex.: "o Templo", "a Sala Kids 1"). */
+function artigoDaSala(slug: string) {
+  return slug === "templo" ? "o" : "a";
+}
+
 const MENSAGEM_INICIAL: Mensagem = {
   autor: "assistente",
   texto:
-    'Olá! Eu sou o assistente de reservas de salas. Me diga a sala, a data e o horário desejados — por exemplo: "Reservar a Sala Kids 1 dia 15/06 das 9h às 12h" ou "Reservar o Templo todos os sábados das 8h30 às 10h45 até 30/11/2025".',
+    'Olá! Eu sou o assistente de reservas de salas. Me diga a sala, a data e o horário desejados — por exemplo: "Reservar a Sala Kids 1 dia 15/06 das 9h às 12h" ou "Reservar o Templo todos os sábados das 8h30 às 10h45 até 30/11/2025". Você também pode escolher a sala nos botões abaixo.',
 };
 
 export default function ChatAssistant() {
@@ -30,11 +36,25 @@ export default function ChatAssistant() {
   const [estado, setEstado] = useState<ChatState>({ step: "coletando" });
   const [entrada, setEntrada] = useState("");
   const [enviando, setEnviando] = useState(false);
+  const [rooms, setRooms] = useState<RoomDTO[]>([]);
   const fimRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fimRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [mensagens]);
+
+  useEffect(() => {
+    fetch("/api/rooms")
+      .then((r) => r.json())
+      .then((d) => setRooms(d.rooms ?? []));
+  }, []);
+
+  function escolherSala(room: RoomDTO) {
+    const frase = `Reservar ${artigoDaSala(room.slug)} ${room.name} `;
+    setEntrada(frase);
+    inputRef.current?.focus();
+  }
 
   async function enviarMensagem(e: React.FormEvent) {
     e.preventDefault();
@@ -65,7 +85,7 @@ export default function ChatAssistant() {
   }
 
   return (
-    <div className="flex h-[26rem] flex-col rounded-lg border border-border bg-surface shadow-sm sm:h-[32rem]">
+    <div className="flex h-[30rem] flex-col rounded-lg border border-border bg-surface shadow-sm sm:h-[34rem]">
       <div className="flex-1 space-y-3 overflow-y-auto p-3 sm:p-4">
         {mensagens.map((m, i) => (
           <div key={i} className={`flex ${m.autor === "usuario" ? "justify-end" : "justify-start"}`}>
@@ -87,8 +107,28 @@ export default function ChatAssistant() {
         )}
         <div ref={fimRef} />
       </div>
+
+      {rooms.length > 0 && (
+        <div className="border-t border-border px-3 py-2 sm:px-4">
+          <p className="mb-1.5 text-[11px] font-medium uppercase tracking-wide text-muted">Escolha uma sala</p>
+          <div className="flex flex-wrap gap-1.5">
+            {rooms.map((room) => (
+              <button
+                key={room.id}
+                type="button"
+                onClick={() => escolherSala(room)}
+                className="rounded-full border border-border bg-surface-2 px-3 py-1 text-xs font-medium text-accent-light hover:border-accent hover:bg-accent hover:text-white"
+              >
+                {room.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <form onSubmit={enviarMensagem} className="flex gap-2 border-t border-border p-3">
         <input
+          ref={inputRef}
           value={entrada}
           onChange={(e) => setEntrada(e.target.value)}
           placeholder="Digite sua mensagem…"

@@ -131,7 +131,7 @@ export default function CalendarView() {
                   <button
                     key={r.id}
                     onClick={() => setSelecionada(r)}
-                    className="block w-full truncate rounded bg-surface-2 px-1 py-0.5 text-left text-[9px] text-accent-light hover:bg-accent/20 sm:text-[11px]"
+                    className="block w-full truncate rounded bg-accent px-1 py-0.5 text-left text-[9px] font-medium text-white shadow-sm hover:bg-accent-hover sm:text-[11px]"
                     title={`${r.roomName} · ${r.startTime}-${r.endTime}`}
                   >
                     {r.startTime} {r.roomName}
