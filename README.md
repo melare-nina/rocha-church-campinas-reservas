@@ -42,7 +42,9 @@ da própria hospedagem do site.
 
 ## Rodando localmente
 
-Pré-requisitos: [Node.js](https://nodejs.org/) 20 ou mais recente.
+Pré-requisitos: [Node.js](https://nodejs.org/) **20.x, 22.x, 23.x ou 24.x** (o banco de dados
+usa `better-sqlite3`, que tem um binário nativo compilado por versão do Node — versões fora
+dessa faixa podem falhar).
 
 ```bash
 npm install
@@ -127,6 +129,21 @@ da própria máquina, sem necessidade de configuração extra.
 Como tudo fica em um único arquivo (`data/church.db`), faça backups periódicos copiando esse
 arquivo (ex.: um cron job semanal copiando para outro lugar). Isso é válido em qualquer uma
 das opções acima.
+
+### Solução de problemas no deploy
+
+- **Erro `SIGSEGV` / "build worker exited" durante `npm run build`**: normalmente significa
+  que a plataforma usou uma versão do Node.js incompatível com o binário nativo do
+  `better-sqlite3` (ex.: Railway às vezes builda com Node 20.20 mesmo o projeto pedindo outra
+  versão). Duas soluções, pode usar as duas:
+  1. Force a versão do Node na plataforma: no Railway, defina a variável de ambiente
+     `RAILPACK_NODE_VERSION=22` (ou 20/23/24); no Render, defina `NODE_VERSION` nas variáveis
+     de ambiente ou em `.node-version` / `package.json` (`engines.node`, já incluído aqui).
+  2. Garanta que está usando `better-sqlite3` numa versão compatível com Node 20.x/22.x/23.x/24.x
+     (este projeto já vem fixado numa versão assim) — evite atualizar essa dependência para uma
+     versão muito mais nova sem checar a faixa de Node suportada.
+- **Dados somem a cada deploy**: a plataforma não tem disco persistente configurado — veja a
+  seção de hospedagem acima (é preciso um volume/disco montado em `DATABASE_PATH`).
 
 ## Estrutura do projeto
 
