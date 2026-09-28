@@ -9,8 +9,8 @@ export default async function SalasPage() {
 
   return (
     <div>
-      <h1 className="mb-1 text-2xl font-semibold text-slate-800">Salas</h1>
-      <p className="mb-6 text-sm text-slate-500">
+      <h1 className="mb-1 text-2xl font-semibold text-foreground">Salas</h1>
+      <p className="mb-6 text-sm text-muted">
         {podeEditar
           ? "Você está logado como Administração: pode consultar, editar e cancelar qualquer reserva."
           : "Você está logado como Líder: consulta das reservas por sala, com filtros."}

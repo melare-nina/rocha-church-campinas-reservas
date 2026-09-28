@@ -9,26 +9,27 @@ export default function HomeTabs() {
 
   return (
     <div>
-      <div className="mb-4 flex gap-2 border-b border-slate-200">
+      <div className="mb-5 inline-flex max-w-full gap-1 overflow-x-auto rounded-full bg-surface-2 p-1">
         <button
           onClick={() => setAba("assistente")}
-          className={`px-4 py-2 text-sm font-medium ${
+          className={`shrink-0 whitespace-nowrap rounded-full px-3 py-2 text-xs font-semibold transition-colors sm:px-5 sm:text-sm ${
             aba === "assistente"
-              ? "border-b-2 border-indigo-600 text-indigo-700"
-              : "text-slate-500 hover:text-slate-800"
+              ? "bg-accent text-white shadow-sm"
+              : "text-muted hover:bg-surface hover:text-foreground"
           }`}
         >
-          Assistente de reservas
+          💬 <span className="hidden sm:inline">Assistente de reservas</span>
+          <span className="sm:hidden">Assistente</span>
         </button>
         <button
           onClick={() => setAba("calendario")}
-          className={`px-4 py-2 text-sm font-medium ${
+          className={`shrink-0 whitespace-nowrap rounded-full px-3 py-2 text-xs font-semibold transition-colors sm:px-5 sm:text-sm ${
             aba === "calendario"
-              ? "border-b-2 border-indigo-600 text-indigo-700"
-              : "text-slate-500 hover:text-slate-800"
+              ? "bg-accent text-white shadow-sm"
+              : "text-muted hover:bg-surface hover:text-foreground"
           }`}
         >
-          Calendário
+          📅 Calendário
         </button>
       </div>
 

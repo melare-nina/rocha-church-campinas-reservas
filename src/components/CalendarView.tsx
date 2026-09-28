@@ -71,23 +71,29 @@ export default function CalendarView() {
   }
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-lg border border-border bg-surface p-3 shadow-sm sm:p-4">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <button onClick={() => mudarMes(-1)} className="rounded border border-slate-300 px-2 py-1 text-sm hover:bg-slate-50">
+          <button
+            onClick={() => mudarMes(-1)}
+            className="rounded border border-border px-2 py-1 text-sm text-foreground hover:bg-surface-2"
+          >
             ←
           </button>
-          <span className="w-40 text-center font-medium">
+          <span className="w-32 text-center text-sm font-medium text-foreground sm:w-40 sm:text-base">
             {MESES[mes]} de {ano}
           </span>
-          <button onClick={() => mudarMes(1)} className="rounded border border-slate-300 px-2 py-1 text-sm hover:bg-slate-50">
+          <button
+            onClick={() => mudarMes(1)}
+            className="rounded border border-border px-2 py-1 text-sm text-foreground hover:bg-surface-2"
+          >
             →
           </button>
         </div>
         <select
           value={roomId}
           onChange={(e) => setRoomId(e.target.value)}
-          className="rounded border border-slate-300 px-3 py-1.5 text-sm"
+          className="rounded border border-border bg-background px-3 py-1.5 text-sm text-foreground"
         >
           <option value="">Todas as salas</option>
           {rooms.map((r) => (
@@ -98,7 +104,7 @@ export default function CalendarView() {
         </select>
       </div>
 
-      <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-slate-500">
+      <div className="grid grid-cols-7 gap-0.5 text-center text-[10px] font-medium text-muted sm:gap-1 sm:text-xs">
         {DIAS_SEMANA.map((d) => (
           <div key={d} className="py-1">
             {d}
@@ -106,33 +112,33 @@ export default function CalendarView() {
         ))}
       </div>
 
-      <div className="grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
         {dias.map((dia, i) => {
-          if (dia === null) return <div key={i} className="min-h-24 rounded bg-slate-50" />;
+          if (dia === null) return <div key={i} className="min-h-14 rounded bg-background sm:min-h-24" />;
           const doDia = reservasDoDia(dia);
           const ehHoje =
             dia === hoje.getDate() && mes === hoje.getMonth() && ano === hoje.getFullYear();
           return (
             <div
               key={i}
-              className={`min-h-24 rounded border p-1 text-left align-top ${
-                ehHoje ? "border-indigo-400 bg-indigo-50" : "border-slate-100"
+              className={`min-h-14 rounded border p-0.5 text-left align-top sm:min-h-24 sm:p-1 ${
+                ehHoje ? "border-accent bg-accent/10" : "border-border"
               }`}
             >
-              <div className="text-xs font-semibold text-slate-500">{dia}</div>
+              <div className="text-[10px] font-semibold text-muted sm:text-xs">{dia}</div>
               <div className="mt-1 space-y-1">
                 {doDia.slice(0, 3).map((r) => (
                   <button
                     key={r.id}
                     onClick={() => setSelecionada(r)}
-                    className="block w-full truncate rounded bg-indigo-100 px-1 py-0.5 text-left text-[11px] text-indigo-800 hover:bg-indigo-200"
+                    className="block w-full truncate rounded bg-surface-2 px-1 py-0.5 text-left text-[9px] text-accent-light hover:bg-accent/20 sm:text-[11px]"
                     title={`${r.roomName} · ${r.startTime}-${r.endTime}`}
                   >
                     {r.startTime} {r.roomName}
                   </button>
                 ))}
                 {doDia.length > 3 && (
-                  <div className="text-[10px] text-slate-400">+{doDia.length - 3} mais</div>
+                  <div className="text-[9px] text-muted sm:text-[10px]">+{doDia.length - 3} mais</div>
                 )}
               </div>
             </div>
@@ -140,41 +146,41 @@ export default function CalendarView() {
         })}
       </div>
 
-      {carregando && <p className="mt-2 text-xs text-slate-400">Carregando reservas…</p>}
+      {carregando && <p className="mt-2 text-xs text-muted">Carregando reservas…</p>}
 
       {selecionada && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
           onClick={() => setSelecionada(null)}
         >
           <div
-            className="w-full max-w-sm rounded-lg bg-white p-5 shadow-lg"
+            className="w-full max-w-sm rounded-lg border border-border bg-surface p-5 shadow-lg"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="mb-2 text-lg font-semibold">{selecionada.roomName}</h3>
-            <p className="text-sm text-slate-600">
+            <h3 className="mb-2 text-lg font-semibold text-foreground">{selecionada.roomName}</h3>
+            <p className="text-sm text-muted">
               {selecionada.date.split("-").reverse().join("/")} — {selecionada.startTime} às {selecionada.endTime}
             </p>
-            <p className="mt-2 text-sm">
+            <p className="mt-2 text-sm text-foreground">
               <span className="font-medium">Responsável:</span> {selecionada.nomeResponsavel}
             </p>
-            <p className="text-sm">
+            <p className="text-sm text-foreground">
               <span className="font-medium">Ministério:</span> {selecionada.ministerio}
             </p>
             {selecionada.finalidade && (
-              <p className="text-sm">
+              <p className="text-sm text-foreground">
                 <span className="font-medium">Finalidade:</span> {selecionada.finalidade}
               </p>
             )}
             {selecionada.recorrente && (
-              <p className="mt-1 text-xs text-indigo-600">Faz parte de uma reserva recorrente</p>
+              <p className="mt-1 text-xs text-accent-light">Faz parte de uma reserva recorrente</p>
             )}
-            <p className="mt-3 text-xs text-slate-400">
+            <p className="mt-3 text-xs text-muted">
               Para cancelar ou alterar esta reserva, use a página &quot;Minha reserva&quot; com o código recebido na confirmação.
             </p>
             <button
               onClick={() => setSelecionada(null)}
-              className="mt-4 w-full rounded bg-slate-100 px-3 py-2 text-sm hover:bg-slate-200"
+              className="mt-4 w-full rounded bg-surface-2 px-3 py-2 text-sm text-foreground hover:bg-border"
             >
               Fechar
             </button>

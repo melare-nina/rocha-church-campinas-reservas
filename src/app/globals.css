@@ -1,24 +1,51 @@
 @import "tailwindcss";
 
+/*
+ * Identidade visual: tema escuro com roxo como destaque, inspirado no
+ * painel do Railway. O tema é sempre escuro (não segue o modo claro do
+ * sistema), para manter a marca consistente em qualquer dispositivo.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #14111d;
+  --surface: #1c1830;
+  --surface-2: #241f3d;
+  --border: #332c4d;
+  --foreground: #f3f0fa;
+  --muted: #a99cc9;
+  --accent: #8b5cf6;
+  --accent-hover: #7c3aed;
+  --accent-light: #c4b5fd;
+  --success: #34d399;
+  --danger: #f87171;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
   --color-foreground: var(--foreground);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-light: var(--accent-light);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+::selection {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+/* Inputs de data/hora do navegador: ajusta o ícone para o tema escuro */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(1.6);
 }

@@ -34,35 +34,35 @@ function LoginForm() {
 
   return (
     <div className="mx-auto max-w-sm">
-      <h1 className="mb-1 text-2xl font-semibold text-slate-800">Login</h1>
-      <p className="mb-6 text-sm text-slate-500">Acesso para Líderes e Administração.</p>
+      <h1 className="mb-1 text-2xl font-semibold text-foreground">Login</h1>
+      <p className="mb-6 text-sm text-muted">Acesso para Líderes e Administração.</p>
 
-      <form onSubmit={entrar} className="space-y-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-        <label className="block text-sm">
+      <form onSubmit={entrar} className="space-y-4 rounded-lg border border-border bg-surface p-5 shadow-sm">
+        <label className="block text-sm text-foreground">
           E-mail
           <input
             type="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+            className="mt-1 w-full rounded border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none"
           />
         </label>
-        <label className="block text-sm">
+        <label className="block text-sm text-foreground">
           Senha
           <input
             type="password"
             required
             value={senha}
             onChange={(e) => setSenha(e.target.value)}
-            className="mt-1 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+            className="mt-1 w-full rounded border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none"
           />
         </label>
-        {erro && <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-700">{erro}</p>}
+        {erro && <p className="rounded bg-danger/10 px-3 py-2 text-sm text-danger">{erro}</p>}
         <button
           type="submit"
           disabled={carregando}
-          className="w-full rounded bg-indigo-600 px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
+          className="w-full rounded bg-accent hover:bg-accent-hover px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
         >
           {carregando ? "Entrando…" : "Entrar"}
         </button>
