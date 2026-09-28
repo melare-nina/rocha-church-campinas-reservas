@@ -19,6 +19,11 @@ function abrirBanco(): Database.Database {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
   const database = new Database(DB_PATH);
+  // Precisa ser o PRIMEIRO pragma: evita erro "database is locked" quando
+  // vários processos (ex.: os workers do build do Next.js, ou várias
+  // instâncias do servidor) abrem o mesmo arquivo ao mesmo tempo — em vez de
+  // falhar na hora, cada um espera a vez (até 10s) antes de desistir.
+  database.pragma("busy_timeout = 10000");
   database.pragma("journal_mode = WAL");
   database.pragma("foreign_keys = ON");
 
@@ -92,36 +97,54 @@ const SALAS_PADRAO = [
   { name: "Sala Kids 3", slug: "sala-kids-3" },
 ];
 
-function seedSalas(database: Database.Database) {
-  const existente = database.prepare("SELECT COUNT(*) as total FROM rooms").get() as { total: number };
-  if (existente.total > 0) return;
+/**
+ * IMPORTANTE sobre concorrência: o Next.js pode abrir este módulo em vários
+ * processos ao mesmo tempo (ex.: os múltiplos "workers" usados durante
+ * `next build` para coletar dados de rotas, ou várias instâncias do servidor
+ * em produção). Todos esses processos apontam para o mesmo arquivo SQLite.
+ *
+ * Por isso o "verificar se já existe" e o "inserir" precisam acontecer como
+ * uma única operação atômica (transação `IMMEDIATE`, que trava a escrita
+ * assim que começa). Sem isso, dois processos podem checar "não existe"
+ * ao mesmo tempo e os dois tentarem inserir, causando um erro de
+ * "UNIQUE constraint failed" — foi exatamente esse o bug corrigido aqui.
+ */
 
-  const inserir = database.prepare(
-    "INSERT INTO rooms (id, name, slug, room_order) VALUES (?, ?, ?, ?)"
-  );
+function seedSalas(database: Database.Database) {
   const transacao = database.transaction(() => {
+    const existente = database.prepare("SELECT COUNT(*) as total FROM rooms").get() as { total: number };
+    if (existente.total > 0) return;
+
+    const inserir = database.prepare(
+      "INSERT INTO rooms (id, name, slug, room_order) VALUES (?, ?, ?, ?)"
+    );
     SALAS_PADRAO.forEach((sala, i) => {
       inserir.run(crypto.randomUUID(), sala.name, sala.slug, i);
     });
+    console.log("[db] Salas padrão criadas.");
   });
-  transacao();
-  console.log("[db] Salas padrão criadas.");
+
+  transacao.immediate();
 }
 
 function seedAdmin(database: Database.Database) {
-  const existente = database.prepare("SELECT COUNT(*) as total FROM users").get() as { total: number };
-  if (existente.total > 0) return;
+  const transacao = database.transaction(() => {
+    const existente = database.prepare("SELECT COUNT(*) as total FROM users").get() as { total: number };
+    if (existente.total > 0) return;
 
-  const email = (process.env.SEED_ADMIN_EMAIL || "admin@igreja.org").toLowerCase();
-  const senha = process.env.SEED_ADMIN_PASSWORD || "admin123";
-  const hash = bcrypt.hashSync(senha, 10);
+    const email = (process.env.SEED_ADMIN_EMAIL || "admin@igreja.org").toLowerCase();
+    const senha = process.env.SEED_ADMIN_PASSWORD || "admin123";
+    const hash = bcrypt.hashSync(senha, 10);
 
-  database
-    .prepare("INSERT INTO users (id, name, email, password_hash, role) VALUES (?, ?, ?, ?, ?)")
-    .run(crypto.randomUUID(), "Administrador", email, hash, "ADMIN");
+    database
+      .prepare("INSERT INTO users (id, name, email, password_hash, role) VALUES (?, ?, ?, ?, ?)")
+      .run(crypto.randomUUID(), "Administrador", email, hash, "ADMIN");
 
-  console.log(`[db] Usuário administrador padrão criado: ${email} / senha: ${senha}`);
-  console.log("[db] IMPORTANTE: crie novos usuários e troque essa senha assim que possível.");
+    console.log(`[db] Usuário administrador padrão criado: ${email} / senha: ${senha}`);
+    console.log("[db] IMPORTANTE: crie novos usuários e troque essa senha assim que possível.");
+  });
+
+  transacao.immediate();
 }
 
 // Evita reabrir o arquivo do banco a cada hot-reload em desenvolvimento.
